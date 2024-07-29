@@ -43,10 +43,12 @@ function checkIn(cookie, sign) {
       if (resJson.code === responseSuccessCode) {
         // console.log("签到成功");
         console.log(resJson.message);
+        notify.send("HiFiNi",resJson.message);
         //
       } else {
         // console.log("签到失败");
         console.log(resJson.message);
+        notify.send("HiFiNi",resJson.message);
         //
       }
     });
@@ -54,8 +56,8 @@ function checkIn(cookie, sign) {
 
 async function main() {
   let cookie;
-  if (process.env.COOKIE) {
-    cookie = process.env.COOKIE;
+  if (process.env.HiFiNi_COOKIE) {
+    cookie = process.env.HiFiNi_COOKIE;
   } else {
     console.log("COOKIE NOT FOUND");
     process.exit(1);
