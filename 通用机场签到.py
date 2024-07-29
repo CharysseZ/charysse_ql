@@ -4,7 +4,7 @@
 #EMAIL	是	账号邮箱
 #PASSWD	是	账号密码
 #SCKEY	否	Sever酱秘钥
-
+#TOKEN	否      pushplus密钥
 import requests, json, re, os
 
 session = requests.session()
@@ -16,6 +16,21 @@ email = os.environ.get('EMAIL')
 passwd = os.environ.get('PASSWD')
 # server酱
 SCKEY = os.environ.get('SCKEY')
+# PUSHPLUS
+Token = os.environ.get('TOKEN')
+def push(content):
+    if SCKEY != '1':
+        url = "https://sctapi.ftqq.com/{}.send?title={}&desp={}".format(SCKEY, '机场签到', content)
+        requests.post(url)
+        print('推送完成')
+    elif Token != '1':
+        headers = {'Content-Type': 'application/json'}
+        json = {"token": Token, 'title': '机场签到', 'content': content, "template": "json"}
+        resp = requests.post(f'http://www.pushplus.plus/send', json=json, headers=headers).json()
+        print('push+推送成功' if resp['code'] == 200 else 'push+推送失败')
+    else:
+        print('未使用消息推送推送！')
+
 
 login_url = '{}/auth/login'.format(url)
 check_url = '{}/user/checkin'.format(url)
@@ -38,10 +53,7 @@ try:
     print(result['msg'])
     content = result['msg']
     # 进行推送
-    if SCKEY != '':
-        push_url = 'https://sctapi.ftqq.com/{}.send?title=机场签到&desp={}'.format(SCKEY, content)
-        requests.post(url=push_url)
-        print('推送成功')
+    push（content）
 except:
     content = '签到失败'
     print(content)
