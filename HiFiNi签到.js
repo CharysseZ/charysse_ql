@@ -1,3 +1,5 @@
+const notify = require('./sendNotify')
+
 const signPageUrl = "https://www.hifini.com/sg_sign.htm";
 
 const responseSuccessCode = "0";
@@ -43,12 +45,12 @@ function checkIn(cookie, sign) {
       if (resJson.code === responseSuccessCode) {
         // console.log("签到成功");
         console.log(resJson.message);
-        notify.send("HiFiNi",resJson.message);
+        notify.sendNotify("HiFiNi",resJson.message);
         //
       } else {
         // console.log("签到失败");
         console.log(resJson.message);
-        notify.send("HiFiNi",resJson.message);
+        notify.sendNotify("HiFiNi",resJson.message);
         //
       }
     });
