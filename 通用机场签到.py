@@ -53,10 +53,8 @@ try:
     print(result['msg'])
     content = result['msg']
     # 进行推送
-    push（content）
+    push(content)
 except:
     content = '签到失败'
     print(content)
-    if SCKEY != '':
-        push_url = 'https://sctapi.ftqq.com/{}.send?title=机场签到&desp={}'.format(SCKEY, content)
-        requests.post(url=push_url)
+    push(content)
