@@ -55,6 +55,6 @@ try:
     # 进行推送
     push(content)
 except:
-    content = '签到失败'
+    content = '机场签到失败'
     print(content)
     push(content)
