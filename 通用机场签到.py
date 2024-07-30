@@ -3,7 +3,10 @@
 #JC_URL	是	机场地址
 #JC_EMAIL	是	账号邮箱
 #JC_PASSWD	是	账号密码
-
+"""
+cron: 0 9 * * *
+new Env('通用机场');
+"""
 import requests, json, re, os
 import notify
 session = requests.session()
