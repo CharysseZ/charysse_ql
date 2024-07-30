@@ -5,7 +5,7 @@ new Env('HiFiNi');
 """
 
 import json
-from sendNotify import send
+from sendNotify import sendNotify
 import requests
 import re
 import os
