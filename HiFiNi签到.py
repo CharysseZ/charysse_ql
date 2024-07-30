@@ -133,7 +133,7 @@ def start(sign, cookie):
 
 
 if __name__ == "__main__":
-    cookie = os.getenv("HIFINI_COOKIE")
+    cookie = os.getenv("HiFiNi_COOKIE")
     sign = get_sign_value(cookie)
     if sign:
         start(sign, cookie)
