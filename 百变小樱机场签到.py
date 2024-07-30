@@ -1,3 +1,8 @@
+"""
+cron: 0 9 * * *
+new Env('百变小樱机场');
+"""
+
 import json
 import os
 from urllib.parse import quote
