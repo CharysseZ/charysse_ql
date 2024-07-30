@@ -46,7 +46,7 @@ def get_sign_value(cookies):
     else:
         if '登录后查看' in response.text:
             print("[-] Cookie失效")
-            send("hifini 签到异常", "Cookie失效")
+            sendNotify("hifini 签到异常", "Cookie失效")
             return None
         print("No sign value found.")
         return None
@@ -100,7 +100,7 @@ def start(sign, cookie):
             elif "操作存在风险，请稍后重试" in rsp_text:
                 msg += "没有设置sign导致的!\n"
                 success = False
-                send("hifini 签到失败：", msg)
+                sendNotify("hifini 签到失败：", msg)
             else:
                 msg += "未知异常!\n"
                 msg += rsp_text + '\n'
@@ -110,11 +110,11 @@ def start(sign, cookie):
             # print(rsp_json['message'])
             if success:
                 print("签到结果: ", msg)
-                send("hifini 签到结果", msg)
+                sendNotify("hifini 签到结果", msg)
                 break  # 成功执行签到，跳出循环
             elif retries >= max_retries:
                 print("达到最大重试次数，签到失败。")
-                send("hifini 签到结果", msg)
+                sendNotify("hifini 签到结果", msg)
                 break
             else:
                 retries += 1
@@ -122,7 +122,7 @@ def start(sign, cookie):
                 time.sleep(20)
         except Exception as e:
             print("签到失败，失败原因:"+str(e))
-            send("hifini 签到结果", str(e))
+            sendNotify("hifini 签到结果", str(e))
             retries += 1
             if retries >= max_retries:
                 print("达到最大重试次数，签到失败。")
@@ -138,4 +138,4 @@ if __name__ == "__main__":
     if sign:
         start(sign, cookie)
     else:
-        send("hifini 签到异常", "hifini 签到失败：没有获取到签名，请联系开发人员")
+        sendNotify("hifini 签到异常", "hifini 签到失败：没有获取到签名，请联系开发人员")
