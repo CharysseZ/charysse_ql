@@ -11,7 +11,7 @@ import requests, json, re, os
 import notify
 session = requests.session()
 # 机场的地址
-url = "https://69yun69.com"
+url = os.environ.get('69_URL')
 # 配置用户名（一般是邮箱）
 email = os.environ.get('JC_EMAIL')
 # 配置用户名对应的密码 和上面的email对应上
