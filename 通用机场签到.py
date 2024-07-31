@@ -43,7 +43,7 @@ def login_and_checkin(url, email, passwd, results):
             print(f'正在对 URL: {url} 进行签到...')
             result = json.loads(session.post(url=check_url, headers=header).text)
             print(f'对 URL: {url} 的签到结果: {result["msg"]}')
-            results.append((url, result['msg']))
+            results.append((url, '\n'.result['msg']))
         except:
             print(f'对 URL: {url} 的签到失败')
             results.append((url, '签到失败'))
