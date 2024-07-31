@@ -12,14 +12,15 @@ import json
 import os
 import notify
 
-def login_and_checkin(url, email, passwd):
+def login_and_checkin(url, email, passwd, results):
     """
-    对给定的 URL 进行登录和签到操作
+    对给定的 URL 进行登录和签到操作，并将结果添加到 results 列表
 
     Args:
         url (str): 要操作的 URL
         email (str): 登录用户名（邮箱）
         passwd (str): 登录密码
+        results (list): 用于存储签到结果的列表
     """
     session = requests.session()
     login_url = '{}/auth/login'.format(url)
@@ -42,21 +43,17 @@ def login_and_checkin(url, email, passwd):
             print(f'正在对 URL: {url} 进行签到...')
             result = json.loads(session.post(url=check_url, headers=header).text)
             print(f'对 URL: {url} 的签到结果: {result["msg"]}')
-            content = result['msg']
-            # 进行推送
-            notify.send(url, content)
+            results.append((url, result['msg']))
         except:
             print(f'对 URL: {url} 的签到失败')
-            content = '对 URL: {} 签到失败'.format(url)
-            notify.send(url, content)
+            results.append((url, '签到失败'))
     except:
         print(f'对 URL: {url} 的登录失败')
-        content = '对 URL: {} 登录失败'.format(url)
-        notify.send(url, content)
+        results.append((url, '登录失败'))
 
 def main():
     """
-    主函数，获取环境变量并执行登录和签到操作
+    主函数，获取环境变量并执行登录和签到操作，最后一次性推送所有结果
     """
     # 从环境变量 JC_URL 中获取多个 URL，以换行符分割
     urls = os.environ.get('JC_URL').split('\n')
@@ -65,8 +62,13 @@ def main():
     # 配置用户名对应的密码 和上面的 email 对应上
     passwd = os.environ.get('JC_PASSWD')
 
+    results = []
     for url in urls:
-        login_and_checkin(url, email, passwd)
+        login_and_checkin(url, email, passwd, results)
+
+    # 一次性推送所有结果
+    notify.send('机场签到：',results)
 
 if __name__ == "__main__":
     main()
+这样可以吗
