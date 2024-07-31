@@ -7,39 +7,66 @@
 cron: 0 9 * * *
 new Env('通用机场');
 """
-import requests, json, re, os
+import requests
+import json
+import os
 import notify
-session = requests.session()
-# 机场的地址
-url = os.environ.get('JC_URL')
-# 配置用户名（一般是邮箱）
-email = os.environ.get('JC_EMAIL')
-# 配置用户名对应的密码 和上面的email对应上
-passwd = os.environ.get('JC_PASSWD')
 
-login_url = '{}/auth/login'.format(url)
-check_url = '{}/user/checkin'.format(url)
+def login_and_checkin(url, email, passwd):
+    """
+    对给定的 URL 进行登录和签到操作
 
-
-header = {
+    Args:
+        url (str): 要操作的 URL
+        email (str): 登录用户名（邮箱）
+        passwd (str): 登录密码
+    """
+    session = requests.session()
+    login_url = '{}/auth/login'.format(url)
+    header = {
         'origin': url,
-        'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36'
-}
-data = {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36'
+    }
+    data = {
         'email': email,
         'passwd': passwd
-}
-try:
-    print('进行登录...')
-    response = json.loads(session.post(url=login_url,headers=header,data=data).text)
-    print(response['msg'])
-    # 进行签到
-    result = json.loads(session.post(url=check_url,headers=header).text)
-    print(result['msg'])
-    content = result['msg']
-    # 进行推送
-    notify.send(url,content)
-except:
-    content = '签到失败'
-    print(content)
-    notify.send(url,content)
+    }
+
+    try:
+        print(f'正在对 URL: {url} 进行登录...')
+        response = json.loads(session.post(url=login_url, headers=header, data=data).text)
+        print(f'对 URL: {url} 的登录结果: {response["msg"]}')
+
+        check_url = '{}/user/checkin'.format(url)
+        try:
+            print(f'正在对 URL: {url} 进行签到...')
+            result = json.loads(session.post(url=check_url, headers=header).text)
+            print(f'对 URL: {url} 的签到结果: {result["msg"]}')
+            content = result['msg']
+            # 进行推送
+            notify.send(url, content)
+        except:
+            print(f'对 URL: {url} 的签到失败')
+            content = '对 URL: {} 签到失败'.format(url)
+            notify.send(url, content)
+    except:
+        print(f'对 URL: {url} 的登录失败')
+        content = '对 URL: {} 登录失败'.format(url)
+        notify.send(url, content)
+
+def main():
+    """
+    主函数，获取环境变量并执行登录和签到操作
+    """
+    # 从环境变量 JC_URL 中获取多个 URL，以换行符分割
+    urls = os.environ.get('JC_URL').split('\n')
+    # 配置用户名（一般是邮箱）
+    email = os.environ.get('JC_EMAIL')
+    # 配置用户名对应的密码 和上面的 email 对应上
+    passwd = os.environ.get('JC_PASSWD')
+
+    for url in urls:
+        login_and_checkin(url, email, passwd)
+
+if __name__ == "__main__":
+    main()
