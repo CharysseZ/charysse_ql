@@ -1,6 +1,6 @@
 #只要机场网站''' Powered by SSPANEL ''',就可以进行签到。要确认是否是''' Powered by SSPANEL '''，在机场首页滑倒最底端就可以看到
 #参数	是否必须	内容
-#JC_URL	是	机场地址,一个机场一行
+#JC_URL	是	机场地址
 #JC_EMAIL	是	账号邮箱
 #JC_PASSWD	是	账号密码
 """
