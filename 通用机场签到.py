@@ -66,8 +66,8 @@ def main():
     for url in urls:
         login_and_checkin(url, email, passwd, results)
 
-    # 一次性推送所有结果
-    notify.send('机场签到：',results)
+    # 一次性推送所有结果，每个结果换行
+    notify.send('机场签到结果:','\n'.join([f'URL: {url}, 结果: {result}' for url, result in results]))
 
 if __name__ == "__main__":
     main()
