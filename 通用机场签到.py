@@ -61,10 +61,7 @@ class SignInManager:
             else:
                 self.signSuccessMsg = response
                 self.signSuccessOrNot = True
-                msg = (f"签到成功:{self.signSuccessMsg['msg']}\n"
-                       f"总流量: {self.signSuccessMsg['traffic']}\n"
-                       f"今日已用: {self.signSuccessMsg['trafficInfo'].get('todayUsedTraffic')}\n"
-                       f"剩余流量: {self.signSuccessMsg['trafficInfo'].get('unUsedTraffic')}\n")
+                msg = (f"签到成功:{self.signSuccessMsg['msg']}\n")       
                 return (True, msg)  # 返回成功状态和包含详细信息的消息
         except Exception as e:
             print(e)
