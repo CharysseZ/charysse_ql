@@ -57,7 +57,7 @@ class SignInManager:
             response = json.loads(client.text)
             if response['ret']!= 1:
                 print(f"对 URL: {url} 签到失败了，原因是{response['msg']}")
-                return (False, response['msg'])  # 返回失败状态和原因
+                return (False, "response['msg']\n")  # 返回失败状态和原因
             else:
                 self.signSuccessMsg = response
                 self.signSuccessOrNot = True
