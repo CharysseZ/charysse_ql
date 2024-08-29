@@ -8,6 +8,7 @@ from lxml import etree
 
 def dailyTask():
     JYLT_Cookie=os.environ.get('JYLT_Cookie')
+    msg=""
 
 
     headers = {
@@ -34,7 +35,8 @@ def dailyTask():
     #2.自动签到
     rep = session.post(url=url_page, headers=headers,
                        data={'formhash': formhash, "submit": "1", "targerurl": "", "todaysay": "", "qdxq": "kx"})
-    print("签到结果:" + re.findall(r'{"status":0,"msg":"(.*)"}', rep.text)[0])
+                        msg=re.findall(r'{"status":0,"msg":"(.*)"}', rep.text)[0]
+    print("签到结果:" + msg )
 
     #3.自动评分
     for i in range(0, len(hot_message)):
@@ -93,3 +95,4 @@ def dailyTask():
 if __name__ == '__main__':
     dailyTask()
     print("执行完毕~")
+    notify.send("精易论坛","签到结果："+ msg)
