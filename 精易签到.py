@@ -35,7 +35,7 @@ def dailyTask():
     #2.自动签到
     rep = session.post(url=url_page, headers=headers,
                        data={'formhash': formhash, "submit": "1", "targerurl": "", "todaysay": "", "qdxq": "kx"})
-                        msg=re.findall(r'{"status":0,"msg":"(.*)"}', rep.text)[0]
+                        msg=(re.findall(r'{"status":0,"msg":"(.*)"}', rep.text)[0])
     print("签到结果:" + msg )
 
     #3.自动评分
