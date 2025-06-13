@@ -23,11 +23,8 @@ class SignInManager:
         # 配置DNS解析策略
         adapter = HTTPAdapter(
             max_retries=Retry(total=3, backoff_factor=1),
-            pool_manager=PoolManager(
-                num_pools=2,
-                maxsize=10,
-                socket_options=socket.SOL_IP  # 强制使用IPv4
-            )
+            pool_connections=2,
+            pool_maxsize=10
         )
         self.session.mount('https://', adapter)
         self.session.mount('http://', adapter)
