@@ -32,8 +32,23 @@ def get_sign_value(cookies):
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
     }
 
-    response = requests.get(
-        'https://www.hifini.com/sg_sign.htm', headers=headers)
+    max_retries = 3
+    retries = 0
+    while retries < max_retries:
+        try:
+            response = requests.get('https://www.hifini.com/sg_sign.htm', 
+                                headers=headers, 
+                                timeout=10)
+            break
+        except requests.exceptions.ConnectionError as e:
+            print(f"域名解析失败: {str(e)}")
+            retries += 1
+            if retries >= max_retries:
+                notify.send("hifini 签到异常", "域名解析失败，请检查网络设置")
+                return None
+            print(f"等待10秒后重试...({retries}/{max_retries})")
+            time.sleep(10)
+    
     # print(response.text)
 
     pattern = r'var sign = "([\da-f]+)"'
