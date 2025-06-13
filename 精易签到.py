@@ -20,7 +20,20 @@ def dailyTask():
 
     url_page = 'https://bbs.125.la/plugin.php?id=dsu_paulsign:sign'
     # 1.登录得到帖子
-    rep = session.get(url=url_page, headers=headers)
+    max_retries = 3
+    retries = 0
+    while retries < max_retries:
+        try:
+            rep = session.get(url=url_page, headers=headers, timeout=10)
+            break
+        except requests.exceptions.ConnectionError as e:
+            print(f"域名解析失败: {str(e)}")
+            retries += 1
+            if retries >= max_retries:
+                notify.send("精易论坛", "域名解析失败，请检查网络设置")
+                return msg
+            print(f"等待10秒后重试...({retries}/{max_retries})")
+            time.sleep(10)
 
     hot_message = re.findall(r'/thread-14(.*).html" target="_blank"', rep.text)
     # print(hot_message)
@@ -30,9 +43,21 @@ def dailyTask():
 
     url_page = 'https://bbs.125.la/plugin.php?id=dsu_paulsign:sign&operation=qiandao&infloat=1'
     # 2.自动签到
-    rep = session.post(url=url_page, headers=headers,
-                       data={'formhash': formhash[0] if formhash else '', "submit": "1", "targerurl": "",
-                             "todaysay": "", "qdxq": "kx"})
+    max_post_retries = 5
+    post_retries = 0
+    while post_retries < max_post_retries:
+        try:
+            rep = session.post(url=url_page, headers=headers, timeout=15,
+                            data={'formhash': formhash[0] if formhash else '', "submit": "1", "targerurl": "",
+                                    "todaysay": "", "qdxq": "kx"})
+            break
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+            print(f"请求失败: {str(e)}")
+            post_retries += 1
+            if post_retries >= max_post_retries:
+                notify.send("精易论坛", "签到请求多次失败")
+                return msg
+            time.sleep(10)
     try:
         msg = re.findall(r'{"status":0,"msg":"(.*)"}', rep.text)[0]
     except IndexError:
@@ -43,7 +68,20 @@ def dailyTask():
     for i in range(0, len(hot_message)):
         # 动态构建帖子详情页 URL
         url_page = 'https://bbs.125.la/thread-14' + hot_message[i] + '.html'
-        rep = session.get(url=url_page, headers=headers)
+        max_retries = 3
+    retries = 0
+    while retries < max_retries:
+        try:
+            rep = session.get(url=url_page, headers=headers, timeout=10)
+            break
+        except requests.exceptions.ConnectionError as e:
+            print(f"域名解析失败: {str(e)}")
+            retries += 1
+            if retries >= max_retries:
+                notify.send("精易论坛", "域名解析失败，请检查网络设置")
+                return msg
+            print(f"等待10秒后重试...({retries}/{max_retries})")
+            time.sleep(10)
         if rep.status_code == 200:
             print('进入帖子详情页成功')
             tree = etree.HTML(rep.text)
@@ -101,7 +139,20 @@ def dailyTask():
     for i in range(0, len(hot_message)):
         # 动态构建帖子详情页 URL
         url_page = 'https://bbs.125.la/thread-14' + hot_message[i] + '.html'
-        rep = session.get(url=url_page, headers=headers)
+        max_retries = 3
+    retries = 0
+    while retries < max_retries:
+        try:
+            rep = session.get(url=url_page, headers=headers, timeout=10)
+            break
+        except requests.exceptions.ConnectionError as e:
+            print(f"域名解析失败: {str(e)}")
+            retries += 1
+            if retries >= max_retries:
+                notify.send("精易论坛", "域名解析失败，请检查网络设置")
+                return msg
+            print(f"等待10秒后重试...({retries}/{max_retries})")
+            time.sleep(10)
         if rep.status_code == 200:
             print('进入帖子详情页成功')
             tree = etree.HTML(rep.text)
