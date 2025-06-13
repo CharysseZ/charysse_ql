@@ -22,7 +22,12 @@ class SignInManager:
         self.session = requests.session()
         # 配置DNS解析策略
         adapter = HTTPAdapter(
-            max_retries=Retry(total=3, backoff_factor=1),
+            max_retries=Retry(
+                total=3,
+                backoff_factor=1,
+                allowed_methods=frozenset(['GET', 'POST']),
+                status_forcelist=[500, 502, 503, 504]
+            ),
             pool_connections=2,
             pool_maxsize=10
         )
@@ -104,7 +109,7 @@ def main():
                     continue
                 results.append(f'URL: {url} 登录失败：{login_result}')
 
-    notify.send('机场签到', '\n'.join(results))
+    notify.send('机场签到', '\n'.join(results), session=sign_in_manager.session)
 
 
 if __name__ == "__main__":
