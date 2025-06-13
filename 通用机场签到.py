@@ -26,7 +26,7 @@ class SignInManager:
             pool_manager=PoolManager(
                 num_pools=2,
                 maxsize=10,
-                socket_options=socket.SOL_IPV4  # 强制使用IPv4
+                socket_options=socket.SOL_IP  # 强制使用IPv4
             )
         )
         self.session.mount('https://', adapter)
