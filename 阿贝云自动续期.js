@@ -37,42 +37,46 @@ async function login() {
             // 解析响应数据
             const data = response.data;
             
-            // 判断是否包含错误信息
-            if (data.msg && data.msg.includes('密码输入错误')) {
-                console.log('登录失败：密码错误');
-                await notify.sendNotify('登录失败', '密码输入错误');
-                return;
-            }
+            // 输出完整响应数据用于调试
+            console.log('完整响应数据:', JSON.stringify(data, null, 2));
             
-            // 判断是否包含账户错误信息
-            if (data.msg && data.msg.includes('手机号输入错误')) {
-                console.log('登录失败：账户错误');
-                await notify.sendNotify('登录失败', '手机号输入错误');
-                return;
-            }
-            
-            // 检查是否有其他错误标志
-            if (data.response && (data.response.includes('500103') || data.response.includes('500101'))) {
-                console.log(`登录失败：服务器错误代码${data.response}`);
-                await notify.sendNotify('登录失败', `服务器返回错误：${data.msg}`);
-                return;
-            }
-            
-            // 验证登录成功条件
-            if (data.response === "200" && data.msg.includes("登录成功")) {
+            // 先检查是否为成功状态
+            if (data.response === "200" && data.msg?.includes("登录成功")) {
                 console.log('登录成功');
-                console.log('响应数据:', data);
-                
-                // 保存cookie或token等信息
-                // const cookies = response.headers['set-cookie'];
-                // console.log('获取到的Cookie:', cookies);
-                
-                await notify.sendNotify('登录成功', '已成功登录到指定网站');
-            } else {
-                console.log('登录失败：未知响应格式');
-                console.log('响应数据:', data);
-                await notify.sendNotify('登录失败', '未知响应格式，请检查API');
+                await notify.sendNotify('登录成功', '已成功登录到阿贝云');
+                return;
             }
+            
+            // 通用错误处理 - 非200状态码
+            if (data.response && data.response !== "200") {
+                let errorMsg = `错误代码: ${data.response}`;
+                if (data.msg) {
+                    errorMsg += `，信息: ${data.msg}`;
+                    
+                    // 识别常见错误类型
+                    if (data.msg.includes('密码') || data.msg.includes('错误') && data.response === '500103') {
+                        errorMsg = '密码输入错误';
+                    } else if (data.msg.includes('手机号') || data.msg.includes('账户') || data.response === '500101') {
+                        errorMsg = '手机号或账户输入错误';
+                    }
+                }
+                
+                console.log(`登录失败：${errorMsg}`);
+                await notify.sendNotify('登录失败', errorMsg);
+                return;
+            }
+            
+            // 处理没有状态码但有错误信息的情况
+            if (data.msg && !data.msg.includes('登录成功')) {
+                console.log(`登录失败：${data.msg}`);
+                await notify.sendNotify('登录失败', data.msg);
+                return;
+            }
+            
+            // 所有条件都不匹配的情况
+            console.log('登录失败：未知响应格式');
+            await notify.sendNotify('登录失败', '未知响应格式，请查看日志详情');
+            
         } else {
             console.log(`登录失败，状态码: ${response.status}`);
             await notify.sendNotify('登录失败', `状态码: ${response.status}`);
@@ -80,7 +84,7 @@ async function login() {
     } catch (error) {
         console.error('登录过程中发生错误:', error.message);
         if (error.response) {
-            console.error('错误响应数据:', error.response.data);
+            console.error('错误响应数据:', JSON.stringify(error.response.data, null, 2));
             console.error('错误响应状态:', error.response.status);
         }
         await notify.sendNotify('登录错误', error.message);
@@ -89,4 +93,3 @@ async function login() {
 
 // 执行登录
 login().catch(console.error);        
-    
