@@ -34,15 +34,45 @@ async function login() {
 
         // 检查响应状态
         if (response.status === 200) {
-            // 处理登录成功逻辑
-            console.log('登录成功');
-            console.log('响应数据:', response.data);
+            // 解析响应数据
+            const data = response.data;
             
-            // 保存cookie或token等信息
-            // const cookies = response.headers['set-cookie'];
-            // console.log('获取到的Cookie:', cookies);
+            // 判断是否包含错误信息
+            if (data.msg && data.msg.includes('密码输入错误')) {
+                console.log('登录失败：密码错误');
+                await notify.sendNotify('登录失败', '密码输入错误');
+                return;
+            }
             
-            await notify.sendNotify('登录成功', '已成功登录到指定网站');
+            // 判断是否包含账户错误信息
+            if (data.msg && data.msg.includes('手机号输入错误')) {
+                console.log('登录失败：账户错误');
+                await notify.sendNotify('登录失败', '手机号输入错误');
+                return;
+            }
+            
+            // 检查是否有其他错误标志
+            if (data.response && (data.response.includes('500103') || data.response.includes('500101'))) {
+                console.log(`登录失败：服务器错误代码${data.response}`);
+                await notify.sendNotify('登录失败', `服务器返回错误：${data.msg}`);
+                return;
+            }
+            
+            // 验证登录成功条件
+            if (data.response === "200" && data.msg.includes("登录成功")) {
+                console.log('登录成功');
+                console.log('响应数据:', data);
+                
+                // 保存cookie或token等信息
+                // const cookies = response.headers['set-cookie'];
+                // console.log('获取到的Cookie:', cookies);
+                
+                await notify.sendNotify('登录成功', '已成功登录到指定网站');
+            } else {
+                console.log('登录失败：未知响应格式');
+                console.log('响应数据:', data);
+                await notify.sendNotify('登录失败', '未知响应格式，请检查API');
+            }
         } else {
             console.log(`登录失败，状态码: ${response.status}`);
             await notify.sendNotify('登录失败', `状态码: ${response.status}`);
@@ -58,5 +88,5 @@ async function login() {
 }
 
 // 执行登录
-login().catch(console.error);    
+login().catch(console.error);        
     
