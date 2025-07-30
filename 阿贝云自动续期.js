@@ -1,7 +1,6 @@
-"""
-cron: 1 0 0 * * *
-new Env('阿贝云自动续期');
-"""
+// cron: 1 0 0 * * *
+// new Env('阿贝云自动续期');
+
 const axios = require('axios');
 const notify = require('./sendNotify'); // 引入青龙通知模块
 
