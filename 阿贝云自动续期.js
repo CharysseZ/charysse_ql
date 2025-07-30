@@ -2,6 +2,7 @@
 // new Env('阿贝云自动续期');
 
 const axios = require('axios');
+const querystring = require('querystring'); // 使用Node.js内置模块
 const notify = require('./sendNotify'); // 引入青龙通知模块
 
 // 从环境变量获取配置信息
@@ -26,22 +27,48 @@ async function login() {
     }
 
     try {
-        const response = await axios.post(config.apiUrl, {
+        // 准备表单数据
+        const formData = {
             cmd: 'login',
             id_mobile: config.username,
             password: config.password
-        });
+        };
+
+        const response = await axios.post(config.apiUrl, 
+            querystring.stringify(formData), // 使用内置模块转换为表单格式
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded' // 设置表单提交的Content-Type
+                }
+            }
+        );
 
         // 检查响应状态
         if (response.status === 200) {
-            // 解析响应数据
-            const data = response.data;
+            // 处理空响应
+            if (response.data === '' || response.data === null) {
+                console.log('登录失败：服务器返回空数据');
+                await notify.sendNotify('登录失败', '服务器返回空数据，请检查登录信息');
+                return;
+            }
             
-            // 输出完整响应数据用于调试
+            // 尝试解析响应数据（可能是JSON或其他格式）
+            let data;
+            try {
+                // 尝试解析为JSON
+                data = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
+            } catch (parseError) {
+                // 如果解析JSON失败，直接使用原始数据
+                console.log('登录响应不是JSON格式:', response.data);
+                data = { msg: response.data };
+            }
+            
+            // 输出完整响应数据用于调试（已修正语法错误）
             console.log('完整响应数据:', JSON.stringify(data, null, 2));
             
             // 先检查是否为成功状态
-            if (data.response === "200" && data.msg?.includes("登录成功")) {
+            if ((data.response === "200" && data.msg?.includes("登录成功")) || 
+                (data.msg && data.msg.includes("登录成功"))) {
                 console.log('登录成功');
                 await notify.sendNotify('登录成功', '已成功登录到阿贝云');
                 return;
@@ -54,9 +81,9 @@ async function login() {
                     errorMsg += `，信息: ${data.msg}`;
                     
                     // 识别常见错误类型
-                    if (data.msg.includes('密码') || data.msg.includes('错误') && data.response === '500103') {
+                    if (data.msg.includes('密码') || (data.response === '500103')) {
                         errorMsg = '密码输入错误';
-                    } else if (data.msg.includes('手机号') || data.msg.includes('账户') || data.response === '500101') {
+                    } else if (data.msg.includes('手机号') || data.msg.includes('账户') || (data.response === '500101')) {
                         errorMsg = '手机号或账户输入错误';
                     }
                 }
@@ -84,7 +111,7 @@ async function login() {
     } catch (error) {
         console.error('登录过程中发生错误:', error.message);
         if (error.response) {
-            console.error('错误响应数据:', JSON.stringify(error.response.data, null, 2));
+            console.error('错误响应数据:', error.response.data);
             console.error('错误响应状态:', error.response.status);
         }
         await notify.sendNotify('登录错误', error.message);
